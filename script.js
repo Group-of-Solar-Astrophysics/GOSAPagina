@@ -1,4 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const buildAvatarFallback = (name) => {
+        const initials = (name || 'GoSA')
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part[0].toUpperCase())
+            .join('');
+        const svg = `
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="${name || 'Avatar'}">
+                <defs>
+                    <linearGradient id="avatar-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ff7900" />
+                        <stop offset="100%" stop-color="#9d4edd" />
+                    </linearGradient>
+                </defs>
+                <rect width="120" height="120" rx="60" fill="url(#avatar-gradient)" />
+                <text x="50%" y="53%" dominant-baseline="middle" text-anchor="middle"
+                    font-family="Outfit, Arial, sans-serif" font-size="38" font-weight="700" fill="#ffffff">${initials}</text>
+            </svg>`;
+
+        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    };
+
+    const initTeamAvatars = () => {
+        document.querySelectorAll('.team-avatar-img').forEach(img => {
+            const fallbackSrc = buildAvatarFallback(img.alt);
+            const applyFallback = () => {
+                if (img.dataset.fallbackApplied === 'true') return;
+                img.dataset.fallbackApplied = 'true';
+                img.src = fallbackSrc;
+            };
+
+            img.addEventListener('error', applyFallback);
+
+            if (img.complete && img.naturalWidth === 0) {
+                applyFallback();
+            }
+        });
+    };
+
     // Generate Stars
     const generateStars = (id, count) => {
         const container = document.getElementById(id);
@@ -172,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     initExpandableCards();
+    initTeamAvatars();
 
     // Language Initialization
     const savedLang = localStorage.getItem('gosa_lang') || 'es';

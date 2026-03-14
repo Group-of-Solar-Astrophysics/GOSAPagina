@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 img.src = fallbackSrc;
             };
 
+            // Avoid relying on third-party avatar services on mobile networks/browsers.
+            if (img.src.includes('ui-avatars.com')) {
+                applyFallback();
+                return;
+            }
+
             img.addEventListener('error', applyFallback);
 
             if (img.complete && img.naturalWidth === 0) {
